@@ -1,0 +1,23 @@
+# Task templates — descriptions are completed in code with injected JSON context.
+# expected_output enforces machine-readable JSON for API parsing.
+
+tasks:
+  research:
+    expected_output: >
+      A single JSON object with key "candidate_pool" (array). Each item must include
+      candidate_id, display_name, summary, source, evidence (array of strings), skills_matched (array).
+      No markdown fences or prose outside JSON.
+
+  evaluate:
+    expected_output: >
+      A single JSON object with key "evaluations" (array). Each item must include
+      candidate_id, score_normalized (0–1), rationale (string),
+      confidence (one of: high, medium, low), and optional criteria_breakdown (object string->number).
+      No markdown fences or prose outside JSON.
+
+  recommend:
+    expected_output: >
+      A single JSON object with key "recommendations" (array). Each item must include
+      rank (int starting at 1), candidate_id, display_name, fit_score (0–1), rationale,
+      uncertainty (boolean), top_skills (array). Sort by rank ascending.
+      No markdown fences or prose outside JSON.

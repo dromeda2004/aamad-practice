@@ -1,0 +1,12 @@
+# TalentFlow AI backend (FastAPI + CrewAI MVP)
+# Python 3.10+
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+
+pydantic>=2,<3
+pyyaml>=6
+python-dotenv>=1
+
+# Crew orchestration runtime
+crewai>=0.76
