@@ -15,10 +15,13 @@ services:
       LOG_LEVEL: INFO
 
       # CrewAI Configuration
-      USE_MOCK_CREW: "true"
+      USE_MOCK_CREW: "false"
       CREW_MODEL: gpt-4
       CREW_MAX_RPM: "10"
       CREW_MAX_ITER: "12"
+      CREWAI_TELEMETRY_ENABLED: "true"
+      CREWAI_TRACING_ENABLED: "true"
+      CREWAI_AOP_API_KEY: ${CREWAI_AOP_API_KEY}
 
       # Security (MVP stub)
       API_KEY: dev-key-123

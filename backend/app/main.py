@@ -23,8 +23,7 @@ from app.store import RunRecord, store
 
 load_dotenv()
 
-level_name = os.getenv("LOG_LEVEL", "INFO").upper()
-logging.basicConfig(level=getattr(logging, level_name, logging.INFO))
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
