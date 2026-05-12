@@ -83,7 +83,7 @@ export function RoleIntakeForm({ onSubmit, disabled }: Props) {
     <form className="panel" onSubmit={handleSubmit} noValidate>
       <h2 className="panel__title">Role intake</h2>
       <p className="muted">
-        Guided form per PRD: block if title or must-have skills are missing.
+  
       </p>
 
       <div className="field">

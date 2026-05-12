@@ -11,6 +11,7 @@ See the full agent definitions in the IDE-specific directories.
 - **@backend.eng** — Backend Developer: Builds CrewAI backend
 - **@integration.eng** — Integration Engineer: Connects frontend and backend
 - **@qa.eng** — QA Engineer: Validates MVP functionality
+- **DevOps Engineer** — Productionizes deployment, hosting, security, and monitoring
 
 ## Workflow
 1. **Define** (Phase 1): @product-mgr → Market Research → PRD → @system.arch → SAD

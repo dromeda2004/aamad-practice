@@ -389,6 +389,7 @@ Multi-agent architecture is optimal because the recruitment lifecycle is a chain
 - 1 Frontend Engineer
 - 1 Integration Engineer
 - 1 QA Engineer
+- 1 DevOps Engineer
 
 ### Development Crew Mapping
 - Product Manager: scope ownership, requirements validation, and acceptance criteria.
