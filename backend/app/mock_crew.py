@@ -90,7 +90,8 @@ def mock_recommend(
     recs: list[RecommendationRow] = []
     for i, row in enumerate(ranked):
         cid = str(row["candidate_id"])
-        uncertain = row.get("confidence") == "medium"
+        # Mark as uncertain if confidence is NOT "high"
+        uncertain = row.get("confidence") != "high"
         fs = float(row.get("score_normalized", 0.8))
         recs.append(
             RecommendationRow(
