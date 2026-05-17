@@ -141,6 +141,31 @@ Out of scope for this mini-project:
 - advanced analytics and reporting
 
 These can be added in post-MVP phases after baseline usability and ROI targets are met.
+ 
+## Operations & Runbook
+
+- **Current status:** MVP implementation complete for researcher/evaluator/recommender flow; runbook and monitoring artifacts drafted under project-context/3.deliver.
+
+- **Quick start:** follow the runbook: [Runbook](project-context/3.deliver/runbook.md). It contains step-by-step local, containerized, and production run instructions.
+
+- **Project structure (quick overview):**
+  - `backend/` — FastAPI service, CrewAI wiring, mock and real crew helpers
+  - `frontend/` — React + Vite UI for recruiter workflows
+  - `project-context/` — PRD, SAD, deployment, monitoring, and runbook artifacts
+  - `.cursor/` — agent and template definitions used during development
+
+- **Key artifact links:**
+  - Deployment plan: [project-context/3.deliver/deployment-plan.md](project-context/3.deliver/deployment-plan.md)
+  - Monitoring plan: [project-context/3.deliver/monitoring-plan.md](project-context/3.deliver/monitoring-plan.md)
+  - Runbook: [project-context/3.deliver/runbook.md](project-context/3.deliver/runbook.md)
+
+- **Lessons learned (summary):**
+  - Centralize logging early — avoid ad-hoc prints; structured logs with `run_id`/`trace_id` greatly speed debugging.
+  - Treat generated artifacts (compiled `.pyc`) as ignored — keep `.gitignore` in sync to avoid merge conflicts.
+  - Mock-first development for CrewAI accelerates local iteration; enable explicit tracing switches for production testing.
+  - Keep agent/task YAMLs externalized (`config/`) to iterate behavior without code changes.
+
+Refer to the runbook for operational run, monitoring, and troubleshooting commands.
 # AAMAD – AI-Assisted Multi-Agent Application Development Framework
 
 **AAMAD** is an open, production-grade framework for building, deploying, and evolving multi-agent applications using best context engineering practices.  
