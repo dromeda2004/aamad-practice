@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-import logging
 import os
+import time
+from typing import Callable
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from app.logging_config import configure_logging, get_logger
 
 from app.pipeline import schedule_pipeline
 from app.schemas import (
@@ -23,8 +27,12 @@ from app.store import RunRecord, store
 
 load_dotenv()
 
-logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
-logger = logging.getLogger(__name__)
+configure_logging()
+logger = get_logger(__name__)
+logger.info(
+    "Application startup complete",
+    extra={"environment": os.getenv("ENVIRONMENT", "development")},
+)
 
 app = FastAPI(
     title="TalentFlow AI",
@@ -40,6 +48,52 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next: Callable) -> JSONResponse:
+    start_time = time.time()
+    request_id = request.headers.get("X-Request-ID", "")
+    client_ip = request.client.host if request.client else "unknown"
+
+    logger.info(
+        "Request start",
+        extra={
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+            "client_ip": client_ip,
+        },
+    )
+
+    try:
+        response = await call_next(request)
+        duration_ms = int((time.time() - start_time) * 1000)
+        logger.info(
+            "Request complete",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "duration_ms": duration_ms,
+                "client_ip": client_ip,
+            },
+        )
+        return response
+    except Exception:
+        duration_ms = int((time.time() - start_time) * 1000)
+        logger.exception(
+            "Request failed",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "duration_ms": duration_ms,
+                "client_ip": client_ip,
+            },
+        )
+        raise
 
 
 def record_to_payload(rec: RunRecord) -> WorkflowRunPayload:
@@ -80,7 +134,15 @@ def health() -> HealthResponse:
 async def create_run(body: CreateRunRequest) -> WorkflowRunPayload:
     req = body.requisition
     rec = await store.create_run(req)
-    logger.info("Created run=%s trace=%s", rec.run_id, rec.trace_id)
+    logger.info(
+        "Run created",
+        extra={
+            "run_id": rec.run_id,
+            "trace_id": rec.trace_id,
+            "role_title": req.role_title,
+            "location": req.location,
+        },
+    )
     schedule_pipeline(store=store, run_id=rec.run_id, start="researcher")
     refreshed = await store.get(rec.run_id)
     assert refreshed is not None

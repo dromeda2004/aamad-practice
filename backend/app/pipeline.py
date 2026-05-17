@@ -42,33 +42,89 @@ async def execute_pipeline(
         )
 
     logger.info(
-        "pipeline run=%s trace=%s start=%s notes=%s",
-        run_id,
-        trace,
-        start,
-        notes,
+        "pipeline start",
+        extra={
+            "run_id": run_id,
+            "trace_id": trace,
+            "start_phase": start,
+            "notes": notes,
+        },
     )
 
     try:
         if start == "researcher":
             await store.update(run_id, stage=RunStage.researching, error=None)
+            logger.info(
+                "agent start",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "researching",
+                    "agent": "researcher",
+                },
+            )
             pool = run_research(req)
             await store.update(
                 run_id, candidate_pool=pool, stage=RunStage.evaluating
             )
+            logger.info(
+                "agent complete",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "researching",
+                    "agent": "researcher",
+                },
+            )
 
             await store.update(run_id, stage=RunStage.evaluating)
+            logger.info(
+                "agent start",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "evaluating",
+                    "agent": "evaluator",
+                },
+            )
             evaluations = run_evaluate(req, pool)
             await store.update(
                 run_id, evaluations=evaluations, stage=RunStage.recommending
             )
+            logger.info(
+                "agent complete",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "evaluating",
+                    "agent": "evaluator",
+                },
+            )
 
             await store.update(run_id, stage=RunStage.recommending)
+            logger.info(
+                "agent start",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "recommending",
+                    "agent": "recommender",
+                },
+            )
             recommendations = run_recommend(req, pool, evaluations)
             await store.update(
                 run_id,
                 recommendations=recommendations,
                 stage=RunStage.awaiting_approval,
+            )
+            logger.info(
+                "agent complete",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "recommending",
+                    "agent": "recommender",
+                },
             )
             return
 
@@ -87,17 +143,53 @@ async def execute_pipeline(
                 return
 
             await store.update(run_id, stage=RunStage.evaluating, error=None)
+            logger.info(
+                "agent start",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "evaluating",
+                    "agent": "evaluator",
+                },
+            )
             evaluations = run_evaluate(req, pool)
             await store.update(
                 run_id, evaluations=evaluations, stage=RunStage.recommending
             )
+            logger.info(
+                "agent complete",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "evaluating",
+                    "agent": "evaluator",
+                },
+            )
 
             await store.update(run_id, stage=RunStage.recommending)
+            logger.info(
+                "agent start",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "recommending",
+                    "agent": "recommender",
+                },
+            )
             recommendations = run_recommend(req, pool, evaluations)
             await store.update(
                 run_id,
                 recommendations=recommendations,
                 stage=RunStage.awaiting_approval,
+            )
+            logger.info(
+                "agent complete",
+                extra={
+                    "run_id": run_id,
+                    "trace_id": trace,
+                    "stage": "recommending",
+                    "agent": "recommender",
+                },
             )
             return
 
@@ -117,11 +209,37 @@ async def execute_pipeline(
             return
 
         await store.update(run_id, stage=RunStage.recommending, error=None)
+        logger.info(
+            "agent start",
+            extra={
+                "run_id": run_id,
+                "trace_id": trace,
+                "stage": "recommending",
+                "agent": "recommender",
+            },
+        )
         recommendations = run_recommend(req, pool, evaluations)
         await store.update(
             run_id,
             recommendations=recommendations,
             stage=RunStage.awaiting_approval,
+        )
+        logger.info(
+            "agent complete",
+            extra={
+                "run_id": run_id,
+                "trace_id": trace,
+                "stage": "recommending",
+                "agent": "recommender",
+            },
+        )
+        logger.info(
+            "pipeline complete",
+            extra={
+                "run_id": run_id,
+                "trace_id": trace,
+                "final_stage": "awaiting_approval",
+            },
         )
     except Exception as e:
         tb = traceback.format_exc()

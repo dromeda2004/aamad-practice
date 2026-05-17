@@ -35,13 +35,20 @@ def should_use_mock_crew() -> bool:
 
 def run_research(requisition: RequisitionInput) -> list[dict]:
     if should_use_mock_crew():
-        logger.info("Using mock crew: research")
+        logger.info(
+            "Using mock crew",
+            extra={"crew_stage": "research", "use_mock": True},
+        )
         out = mock_research(requisition)
         return [dict(x) for x in out["candidate_pool"]]
 
     from crew import run_research_llm
 
     max_rpm, max_iter, model = _crew_runtime_params()
+    logger.info(
+        "Using LLM crew",
+        extra={"crew_stage": "research", "use_mock": False, "model": model},
+    )
     text = run_research_llm(
         requisition=requisition.model_dump(),
         max_rpm=max_rpm,
@@ -58,13 +65,20 @@ def run_research(requisition: RequisitionInput) -> list[dict]:
 
 def run_evaluate(requisition: RequisitionInput, pool: list[dict]) -> list[dict]:
     if should_use_mock_crew():
-        logger.info("Using mock crew: evaluate")
+        logger.info(
+            "Using mock crew",
+            extra={"crew_stage": "evaluate", "use_mock": True},
+        )
         out = mock_evaluate(requisition, pool)
         return [dict(x) for x in out["evaluations"]]
 
     from crew import run_evaluator_llm
 
     max_rpm, max_iter, model = _crew_runtime_params()
+    logger.info(
+        "Using LLM crew",
+        extra={"crew_stage": "evaluate", "use_mock": False, "model": model},
+    )
     text = run_evaluator_llm(
         requisition=requisition.model_dump(),
         candidate_pool=pool,
@@ -86,13 +100,20 @@ def run_recommend(
     evaluations: list[dict],
 ) -> list[dict]:
     if should_use_mock_crew():
-        logger.info("Using mock crew: recommend")
+        logger.info(
+            "Using mock crew",
+            extra={"crew_stage": "recommend", "use_mock": True},
+        )
         out = mock_recommend(requisition, pool, evaluations)
         return [dict(x) for x in out["recommendations"]]
 
     from crew import run_recommender_llm
 
     max_rpm, max_iter, model = _crew_runtime_params()
+    logger.info(
+        "Using LLM crew",
+        extra={"crew_stage": "recommend", "use_mock": False, "model": model},
+    )
     text = run_recommender_llm(
         requisition=requisition.model_dump(),
         candidate_pool=pool,
